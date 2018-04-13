@@ -1,6 +1,6 @@
 {
   "name": "translation-loader",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Webpack loader that localizes HTML templates and JSON files by injecting translated content.",
   "keywords": [
     "webpack",
