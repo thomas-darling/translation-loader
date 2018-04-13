@@ -13,31 +13,55 @@ import { Plugin } from "gulp-translate/lib/plugin/plugin";
  */
 export function loader(fileContents: string): string | void
 {
-    // Get the options for the translate plugin and import task.
-    const options = (loaderUtils.getOptions(this) || {}) as ILoaderOptions;
+    // Get a copy of the options for the translate plugin and import task.
+    const options = { ...loaderUtils.getOptions(this) } as ILoaderOptions;
 
-    // Get the path and base path of the file being loaded.
+    // Get the path of the file being loaded.
     const filePath = this.resourcePath;
 
     // Skip the import if the file path matches any exclude globs.
-    if (options.excludeGlobs != null)
+    if (!options.skipImport && options.excludeGlobs != null)
     {
         const excludeGlobs = options.excludeGlobs.map(glob => path.join(process.cwd(), glob));
 
         if (excludeGlobs.some(glob => minimatch.match([filePath], glob).length > 0))
         {
-            return fileContents;
+            options.skipImport = true;
         }
     }
 
-    // Add the import file as a dependency for the file being loaded.
-    this.addDependency(options.importFilePath);
+    if (!options.skipImport)
+    {
+        // Add the import file as a dependency for the file being loaded.
+        if (options.importFilePath instanceof Array)
+        {
+            for (const importFilePath of options.importFilePath)
+            {
+                this.addDependency(importFilePath);
+            }
+        }
+        else
+        {
+            this.addDependency(options.importFilePath);
+        }
+    }
+    else
+    {
+        // We need the export task to clean the templates, but we don't want to actually export anything.
+        options.exportFilePath = undefined;
+    }
 
-    // Create the translate plugin, import task and file.
-    const task = new Plugin(options).import(options);
+    // Create the translate plugin.
+    const plugin = new Plugin(options);
+
+    // Create the task, which may be either an import task or an export task, depending on whether the import
+    // should be skipped or not. If the import is skipped, the export task will simply clean the templates.
+    const task = options.skipImport ? plugin.export(options) : plugin.import(options);
+
+    // Create the file to be processed.
     const file = { contents: fileContents, path: filePath };
 
-    // Execute the import task.
+    // Process the file.
 
     const callback = this.async();
 

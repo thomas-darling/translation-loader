@@ -5,33 +5,30 @@
 [![Downloads](https://img.shields.io/npm/dm/translation-loader.svg)](https://www.npmjs.com/package/translation-loader)
 [![Try on RunKit](https://badge.runkitcdn.com/translation-loader.svg)](https://runkit.com/npm/translation-loader)
 
-Webpack loader that injects translated content into HTML templates and JSON files.
+Webpack loader that localizes HTML templates and JSON files by injecting translated content.
 
-This is build on top of the core import functionality of [gulp-translate](https://www.npmjs.com/package/gulp-translate),
-allowing that same workflow to be used together with a Webpack based build process, in which templates and JSON files
-will be localized when they are loaded by Webpack.
+This is build on top of the core import functionality of [gulp-translate](https://www.npmjs.com/package/gulp-translate), allowing that same workflow to be used together with a Webpack based build process, in which templates and JSON files will be localized when they are loaded by Webpack.
 
-Please refer to the docs for [gulp-translate](https://www.npmjs.com/package/gulp-translate) for details on capabilities and configuration.<br>
-Note that the repository for this loader also contains an example illustrating how this may be used.
+Please refer to the docs for [gulp-translate](https://www.npmjs.com/package/gulp-translate) for details on capabilities and configuration.
 
 ## What about the export?
 
-While this loader handles the import of translations, you will also need to export your content for translation.
-The recommended way to do that, is to either use [gulp-translate](https://www.npmjs.com/package/gulp-translate) together with a Gulp task, or if you do not wish to take a dependency
-on Gulp, to write a simple `package.json` script that uses the core export functionality of [gulp-translate](https://www.npmjs.com/package/gulp-translate) directly.
+While this loader handles the import of translations, you will also need to export your content for translation. The recommended way to do that, is to either use [gulp-translate](https://www.npmjs.com/package/gulp-translate) in a Gulp task, or if you do not wish to take a dependency on Gulp, to write a simple `package.json` script that uses the core export functionality of [gulp-translate](https://www.npmjs.com/package/gulp-translate) directly.
 
 ## Example
 
-The following is an example of how this loader might be used in a Webpack configuration,
-together with a `package.json` script for exporting content for translation.
+The following example illustrates how this loader may be used in a Webpack configuration, as well as how a `package.json` script for exporting content may be written. Note the code shown here also exists as a working example in the repository for this package.
 
 ### `webpack.config.js`
+
+Let's say you have a webpack configuration that looks like the example below. Note how the templates and JSON content files are piped through the `translation-loader`, before being passed to the regular loaders - and yes, Webpack applies the loaders from right to left, so the order shown here is correct.
 
 ```javascript
 const path = require("path");
 const translateConfig = require("./translate-config");
 
-module.exports =
+// The webpack configuration.
+const webpackConfig =
 {
     entry: "./source/entry.js",
     output:
@@ -63,9 +60,29 @@ module.exports =
         ]
     }
 };
+
+// Handle command line arguments and return the webpack configuration.
+module.exports = function(env)
+{
+    if (env && env.locale)
+    {
+        // To build for the specified locale, set the import file path.
+        translateConfig.importFilePath =
+            `./translation/import/${env.locale}.json`;
+    }
+    else
+    {
+        // To build for the base locale, just skip the import.
+        translateConfig.skipImport = true;
+    }
+
+    return webpackConfig;
+};
 ```
 
 ### `translate-export.js`
+
+While webpack handles the import and build, you'll also need a way to export the content from your templates and JSON content files, so it can be sent off for translation. This can be done using a script like the example below.
 
 ```javascript
 const fs = require("fs");
@@ -83,11 +100,17 @@ const filePaths = globby.sync(
 
     // Exclude globs.
     ...translateConfig.excludeGlobs
-        .map(glob => "!" + path.join(__dirname, glob))
+        .map(glob => `!${path.join(__dirname, glob)}`)
 ]);
 
 // Create the translate plugin and export task.
-const task = new translate.Plugin(translateConfig).export(translateConfig);
+const task = new translate.Plugin(translateConfig).export(
+{
+    ...translateConfig,
+
+    // The path to the export file, to which the content should be exported.
+    exportFilePath: "./translation/export/translate.json"
+});
 
 // Process the source files.
 for (let filePath of filePaths)
@@ -99,9 +122,16 @@ for (let filePath of filePaths)
 
 // Finalize the task.
 task.finalize();
+
+// TODO:
+// Depending on your workflow, you could consider automatically uploading
+// the file to your translation service of choice, and maybe have a similar
+// script for downloading the translations once they are ready.
 ```
 
 ### `translate-config.js`
+
+This is the configuration needed during both import and export.
 
 ```javascript
 module.exports =
@@ -112,28 +142,39 @@ module.exports =
     prefixIdsInContentFiles: true,
     preserveAnnotations: "none",
     baseFilePath: "./source",
-    importFilePath: "./translation/import/translation.json",
-    exportFilePath: "./translation/export/translation.json",
 
     // This option is specific to this loader and not part of gulp-translate.
-    // It allows you to specify glob patterns for files for which import
+    // It allows you to specify glob patterns matching files for which import
     // and export should be skipped, e.g. because they belong to a feature
     // that is not yet ready for translation.
-    excludeGlobs: ["./unfinished-feature/**"]
+    excludeGlobs: ["./source/excluded/**"]
 
     // Note that all paths are relative to the current working directory.
 };
 ```
 
-### Finally, add this to your `package.json` file
+### How to use
+
+Finally, to make your build tasks more discoverable, you can consider adding something like the following this to your `package.json` file.
 
 ```js
 "scripts":
 {
   "build": "webpack",
-  "export": "node translate-export.js"
+  "translate-export": "node translate-export"
+
+  // If you also have a script to download translations...
+  "translate-import": "node translate-import"
 }
 ```
 
-This allows you to build your project by executing the command `node build`,
-and to export strings for translation by executing the command `node export`.
+With this in place, you can execute the following commands:
+
+* `npm build`<br>
+  This will produce a build for the base locale, which could be e.g. `en-US`.
+
+* `npm build --env.locale=en-GB`<br>
+  This will produce a build localized for the `en-GB` locale, where the contents of your templates and JSON content files is replaced with the translated content.
+
+* `npm translate-export`<br>
+  This will export the contents of your templates and JSON content files into a file that can be sent to translators, who then produce the translation files needed during the build.

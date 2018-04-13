@@ -11,11 +11,20 @@ in `package.json`, which would make them more discoverable and easier to use.
 
    This will export content to the file `./translation/export/translation.json`.
 
-## Import
+## Build for base locale
 
 1. Open a command prompt in this folder.
 
 2. Execute the command: `webpack`
 
    This will import content from the file `./translation/import/translation.json`
+   and produce a localized bundle in the `./artifacts` folder.
+
+## Build for a specific locale
+
+1. Open a command prompt in this folder.
+
+2. Execute the command: `webpack --env.locale=en-GB`
+
+   This will import content from the file `./translation/import/en-GB.json`
    and produce a localized bundle in the `./artifacts` folder.
