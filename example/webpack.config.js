@@ -57,7 +57,8 @@ module.exports = function(env)
     if (env && env.locale)
     {
         // To build for the specified locale, set the import file path.
-        translateConfig.importFilePath = `./translation/import/${env.locale}.json`;
+        translateConfig.importFilePath =
+            translateConfig.importFilePath.replace("{locale}", env.locale);
 
         // Set the output file name so we get a bundle for each locale.
         webpackConfig.output.filename = `bundle.${env.locale}.js`;
