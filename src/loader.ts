@@ -19,18 +19,20 @@ export function loader(fileContents: string): string | void
     // Get the path of the file being loaded.
     const filePath = this.resourcePath;
 
+    let skipImport = false;
+
     // Skip the import if the file path matches any exclude globs.
-    if (!options.skipImport && options.excludeGlobs != null)
+    if (options.excludedFilePaths != null)
     {
-        const excludeGlobs = options.excludeGlobs.map(glob => path.join(process.cwd(), glob));
+        const excludeGlobs = options.excludedFilePaths.map(glob => path.resolve(glob));
 
         if (excludeGlobs.some(glob => minimatch.match([filePath], glob).length > 0))
         {
-            options.skipImport = true;
+            skipImport = true;
         }
     }
 
-    if (!options.skipImport)
+    if (!skipImport)
     {
         // Add the import file as a dependency for the file being loaded.
         if (options.importFilePath instanceof Array)
@@ -56,7 +58,7 @@ export function loader(fileContents: string): string | void
 
     // Create the task, which may be either an import task or an export task, depending on whether the import
     // should be skipped or not. If the import is skipped, the export task will simply clean the templates.
-    const task = options.skipImport ? plugin.export(options) : plugin.import(options);
+    const task = skipImport ? plugin.export(options) : plugin.import(options);
 
     // Create the file to be processed.
     const file = { contents: fileContents, path: filePath };

@@ -1,17 +1,44 @@
+/**
+ * The configuration used during content export and translation import.
+ * Note that paths must be absolute or relative to the current working directory.
+ */
 module.exports =
 {
-    // This is where the options for gulp-translate are specified.
+    // Options for 'gulp-translate'.
     // Note how the plugin and command options are all in the same object,
-    // instead of being separated as in the gulp-translate documentation.
-    prefixIdsInContentFiles: true,
+    // instead of being separated as in the 'gulp-translate' documentation.
+
     normalizeContent: true,
+    prefixIdsInContentFiles: true,
     baseFilePath: "./source",
 
-    // This option is specific to this loader and not part of gulp-translate.
-    // It allows you to specify glob patterns matching files for which import
-    // and export should be skipped, e.g. because they belong to a feature
-    // that is not yet ready for translation.
-    excludeGlobs: ["./source/excluded/**"]
+    // The path to the export file to which content should be exported.
+    exportFilePath: "./translation/export/translate.json",
 
-    // Note that all paths are relative to the current working directory.
+    // The path to the import file from which content should be imported.
+    // This will be set depending on the locale being imported.
+    importFilePath: undefined,
+
+    // Options for 'translation-loader' and the export script.
+
+    /**
+     * An array of glob patterns matching files that should be included in the export.
+     * Make sure this matches the tests guarding the use of the 'translation-loader' in your
+     * Webpack configuration.
+     */
+    includedFilePaths:
+    [
+        "./source/**/*.html",
+        "./source/**/content.json"
+    ],
+
+    /**
+     * An array of glob patterns matching files that should be excluded from import and export.
+     * Use this to exclude files related to features that are not yet ready for translation.
+     * Default is undefined.
+     */
+    excludedFilePaths:
+    [
+        "./source/excluded/**"
+    ]
 };

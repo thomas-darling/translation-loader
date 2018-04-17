@@ -1,7 +1,6 @@
 # How to run this example
 
-Note that in a real project, the following commands could be added as scripts
-in `package.json`, which would make them more discoverable and easier to use.
+Note that the following commands could also be added as scripts in `package.json`, which would make them more discoverable.
 
 ## Export
 
@@ -9,7 +8,7 @@ in `package.json`, which would make them more discoverable and easier to use.
 
 2. Execute the command: `node translate-export`
 
-   This will export content to the file `./translation/export/translation.json`.
+   This will export all translatable content to the file `./translation/export/translate.json`.
 
 ## Build for base locale
 
@@ -17,8 +16,7 @@ in `package.json`, which would make them more discoverable and easier to use.
 
 2. Execute the command: `webpack`
 
-   This will import content from the file `./translation/import/translation.json`
-   and produce a localized bundle in the `./artifacts` folder.
+   This will produce a bundle in the `./artifacts` folder, localized for the base locale in which the source is written, which in this example is `en-US`.
 
 ## Build for a specific locale
 
@@ -26,5 +24,4 @@ in `package.json`, which would make them more discoverable and easier to use.
 
 2. Execute the command: `webpack --env.locale=en-GB`
 
-   This will import content from the file `./translation/import/en-GB.json`
-   and produce a localized bundle in the `./artifacts` folder.
+   This will produce a bundle in the `./artifacts` folder, localized using the translated content from the import file, which in this example is `./translation/import/en-GB.json`.

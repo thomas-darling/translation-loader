@@ -1,14 +1,18 @@
 const path = require("path");
 const translateConfig = require("./translate-config");
 
-// The webpack configuration.
+/**
+ * The Webpack configuration.
+ */
 const webpackConfig =
 {
     entry: "./source/entry.js",
     output:
     {
-        path: path.join(__dirname, "artifacts"),
-        filename: "bundle.js"
+        path: path.resolve("./artifacts"),
+
+        // This will be set based on the locale for which we are building.
+        filename: undefined
     },
     module:
     {
@@ -26,37 +30,45 @@ const webpackConfig =
                 test: /[/\\]content\.json$/,
                 use:
                 [
-                    { loader: "json-loader" },
                     { loader: "translation-loader", options: translateConfig }
-                ],
-                type: "javascript/auto"
+                ]
             }
         ]
     },
 
-    // This is just needed because we are referencing the local build output.
-    // If the loader was installed as an NPM package, it would not be needed.
+    // This is only needed because we are referencing the local build output.
+    // If the loader was installed as an NPM package, this would not be needed.
     resolveLoader:
     {
         alias:
         {
-            "translation-loader": path.join(__dirname, '../lib/index'),
+            "translation-loader": path.resolve("../lib/index"),
         },
     }
 };
 
-// Handle command line arguments and return the webpack configuration.
+/**
+ * Creates the Webpack configuration based on the command line arguments.
+ * @param env An object representing the specified 'env' arguments, or undefined.
+ * @returns The Webpack configuration to use.
+ */
 module.exports = function(env)
 {
     if (env && env.locale)
     {
         // To build for the specified locale, set the import file path.
         translateConfig.importFilePath = `./translation/import/${env.locale}.json`;
+
+        // Set the output file name so we get a bundle for each locale.
+        webpackConfig.output.filename = `bundle.${env.locale}.js`;
     }
     else
     {
-        // To build for the base locale, just skip the import.
-        translateConfig.skipImport = true;
+        // To build for the base locale without an import file, exclude all files.
+        translateConfig.excludedFilePaths = ["**"];
+
+        // Set the output file name so we get a bundle for each locale.
+        webpackConfig.output.filename = "bundle.en-US.js";
     }
 
     return webpackConfig;

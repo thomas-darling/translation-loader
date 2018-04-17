@@ -1,12 +1,12 @@
 {
-  "c9e4e6723": {
-    "content": "should be translated",
+  "b802fcc8a": {
+    "content": "en-US content",
     "sources": [
       "./template.html"
     ]
   },
   "./content:test": {
-    "content": "should be translated",
+    "content": "en-US content",
     "sources": [
       "./content.json"
     ]
