@@ -2,6 +2,10 @@
 
 Note that the following commands could also be added as scripts in `package.json`, which would make them more discoverable.
 
+> ##### Note
+> This assumes you already installed the dependencies for this repository, and have the Webpack installed globally.
+If that's not the case, run the commands `npm install` and `npm install -g webpack` in this folder before continuing.
+
 ## Export
 
 1. Open a command prompt in this folder.

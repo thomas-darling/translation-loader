@@ -7,7 +7,7 @@
 
 Webpack loader that localizes HTML templates and JSON files by injecting translated content, replacing the original content that was previously exported for translation.
 
-This is built on top of the core functionality of [gulp-translate](https://www.npmjs.com/package/gulp-translate), allowing that same workflow to be used together in a Webpack build process, in which templates and JSON files will be localized as they are loaded by Webpack.
+This leverages the core functionality of [gulp-translate](https://www.npmjs.com/package/gulp-translate), allowing that exact same workflow to be used in a Webpack build process, with no dependency on Gulp.
 
 Please refer to the documentation for [gulp-translate](https://www.npmjs.com/package/gulp-translate) for details on capabilities and configuration.
 
@@ -191,17 +191,21 @@ Finally, to make your tasks more discoverable, you can add something like the fo
 "scripts":
 {
   "build": "webpack",
-  "translate-export": "node translate-export"
+  "translate-export": "node translate-export",
+  "translate-import": "node translate-import"
 }
 ```
 
 With this in place, you can execute the following commands:
 
-* `npm build`<br>
+* `npm run build`<br>
   This will produce a build for the base locale, which could be e.g. `en-US`.
 
-* `npm build --env.locale=en-GB`<br>
+* `npm run build --env.locale=en-GB`<br>
   This will produce a build localized for the `en-GB` locale, where the contents of your templates and JSON files is replaced with the translated content.
 
-* `npm translate-export`<br>
+* `npm run translate-export`<br>
   This will export the contents of your templates and JSON files into a file that can be sent to translators, who then produce the import files needed during the build.
+
+* `npm run translate-import`<br>
+  This would be a convenient way to download the lates translations into your repository.
