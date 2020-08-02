@@ -1,5 +1,6 @@
 {
-    "recommendations": [
-        "eg2.tslint"
+    "recommendations":
+    [
+        "ms-vscode.vscode-typescript-tslint-plugin"
     ]
 }
