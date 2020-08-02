@@ -6,6 +6,7 @@ const translateConfig = require("./translate-config");
  */
 const webpackConfig =
 {
+    mode: "production",
     entry: "./source/entry.js",
     output:
     {
@@ -22,7 +23,7 @@ const webpackConfig =
                 test: /\.html$/,
                 use:
                 [
-                    { loader: "html-loader" },
+                    { loader: "html-loader", options: { minimize: false } },
                     { loader: "translation-loader", options: translateConfig }
                 ]
             },

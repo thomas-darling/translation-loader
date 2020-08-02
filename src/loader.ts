@@ -1,6 +1,7 @@
 import * as path from "path";
 import * as loaderUtils from "loader-utils";
 import * as minimatch from "minimatch";
+import * as webpack from "webpack";
 import { ILoaderOptions } from "./loader-options";
 
 /* tslint:disable: no-submodule-imports */
@@ -11,7 +12,7 @@ import { Plugin } from "gulp-translate/lib/plugin/plugin";
  * Represents the loader function that will be called by Webpack.
  * @param fileContents The contents of the file being loaded.
  */
-export function loader(fileContents: string): string | void
+export function loader(this: webpack.loader.LoaderContext, fileContents: string): string | void
 {
     // Get a copy of the options for the translate plugin and import task.
     const options = { ...loaderUtils.getOptions(this) } as ILoaderOptions;
@@ -42,7 +43,7 @@ export function loader(fileContents: string): string | void
                 this.addDependency(importFilePath);
             }
         }
-        else
+        else if (options.importFilePath != null)
         {
             this.addDependency(options.importFilePath);
         }
@@ -65,7 +66,7 @@ export function loader(fileContents: string): string | void
 
     // Process the file.
 
-    const callback = this.async();
+    const callback = this.async()!;
 
     task.process(file)
         .then(processedFile => callback(null, processedFile.contents))

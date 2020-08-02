@@ -4,7 +4,7 @@ Note that the following commands could also be added as scripts in `package.json
 
 > ##### Note
 > This assumes you already installed the dependencies for this repository, and have the Webpack installed globally.
-If that's not the case, run the commands `npm install` and `npm install -g webpack` in this folder before continuing.
+If that's not the case, run the commands `npm install`, `npm install -g webpack` and  `npm install -g webpack-cli` in this folder before continuing.
 
 ## Export
 
